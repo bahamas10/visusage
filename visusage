@@ -111,7 +111,7 @@ main() {
 	done <<< "$prstat_output"
 
 	# Print the memory and CPU usage
-	printf "${green}Zone: ${reset}${cyan}%s ${purple}(${yellow}%s${green})\n" \
+	printf "${green}Zone: ${reset}${cyan}%s ${magenta}(${yellow}%s${magenta})\n" \
 		"$zoneid" "$zone"
 
 	printf "${green}Mem:  ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%s\n" \
