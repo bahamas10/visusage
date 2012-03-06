@@ -160,9 +160,10 @@ if [[ -n "$1" ]]; then
 	fi
 
 	# Clear the screen and run the loop
-	while clear; do
-		main
-		date
+	while true; do
+		output=$(main; date)
+		clear
+		echo "$output"
 		# If counting, inecrement the counter and exit if over $count
 		if [[ -n "$count" ]]; then
 			((i++))
