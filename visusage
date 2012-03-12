@@ -120,7 +120,7 @@ main() {
 	printf "${green}CPU:  ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%s\n" \
 		"$(print_bars "$cpu")"    "$cpu"
 
-	# Print the bottom lime of prstat
+	# Print the bottom line of prstat
 	echo -n "$green"
 	tail -1 <<< "$prstat_output"
 
