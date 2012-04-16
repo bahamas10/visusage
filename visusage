@@ -10,10 +10,18 @@
 columns=80
 # The character to use in the bar graphs
 bar_character='|'
-# The zoneid to report
-report_zoneid=0
 # Color output or not
 color=true
+
+# Check to see if we have the global zone
+out=$(zoneadm list -p)
+if (( $(wc -l <<< "$out") == 1 )); then
+	# Only one zone found, use it
+	IFS=: read -r report_zoneid _ <<< "$out"
+else
+	# Multiple zones, assume global unless -z is supplied
+	report_zoneid=0
+fi
 
 #
 # Display usage
