@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
-# Print resource utilization in a nice
-# visual format
+# Print CPU utilization per core in a nice
+# visual form from mpstat(1)
 #
 # Author: Dave Eddy <dave@daveeddy.com>
-# Date: 3/4/12
+# Date: 4/17/12
 
 # Default number of columns to display
 columns=80
@@ -13,16 +13,6 @@ bar_character='|'
 # Color output or not
 color=true
 
-# Check to see if we have the global zone
-out=$(zoneadm list -p)
-if (( $(wc -l <<< "$out") == 1 )); then
-	# Only one zone found, use it
-	IFS=: read -r report_zoneid _ <<< "$out"
-else
-	# Multiple zones, assume global unless -z is supplied
-	report_zoneid=0
-fi
-
 #
 # Display usage
 #
@@ -30,12 +20,11 @@ usage() {
 	cat <<-EOF
 	Usage: ${0##*/} [ options ] [ <interval> [ <count> ] ]
 
-	Visual Usage
-	Print a visual representation of resource utilization on an
-	Illumos based operating system using prstat
+	Print CPU utilization per core in a nice
+	visual form from mpstat(1)
 
-	Example Usage: ${0##*/} -c 30 -b '#' -z 0 1 5
-	- Report on zone 0 for 5 times at 1 second intervals,
+	Example Usage: ${0##*/} -c 30 -b '#' 1 5
+	- Report for 5 times at 1 second intervals,
 	  reserving 30 characters for the bar graph using # as
 	  the graph character
 
@@ -43,7 +32,6 @@ usage() {
 	-c <columns> : Number of columns to use for the bar graph
 	-n           : Disable color output
 	-h           : Print this help message
-	-z <zoneid>  : Zone ID to report on
 
 	EOF
 }
@@ -64,21 +52,8 @@ load_colors() {
 	reset=$(tput sgr0)
 }
 
-#
-# Check if a zone exists
-#
-# $1 = zoneid
-#
-zone_exists() {
-	while IFS=: read zoneid zonename state zonepath uuid brand ip_type; do
-		if [[ "$1" == "$zoneid" ]]; then
-			return 0
-		fi
-	done < <(zoneadm list -p)
-	return 1
-}
 
-# Display bars for a given perce
+# Display bars for a given percent
 #
 # $1 = percentage
 #
@@ -101,59 +76,45 @@ print_bars() {
 #
 main() {
 	# Grab the out of prstat
-	prstat_output=$(prstat -n 1 -Z 1 1)
+	output=$(mpstat)
 
 	# Loop the output of prstat and extract the meaninful fields
-	flag=false
-	while read zoneid nproc swap rss memory time cpu zone; do
-		# Check to see if we are at the zone portion of prstat
-		if [[ "$zoneid" == "ZONEID" ]]; then
-			flag=true
+	first=true
+	i=0
+	while read CPU minf mjf xcal intr ithr csw icsw migr smtx srw syscl usr sys wt idl; do
+		# Ignore the headers
+		if $first; then
+			first=false
 			continue
 		fi
 
-		# If we are at the line with the zone we are interested save the info
-		if "$flag" && [[ "$report_zoneid" == "$zoneid" ]]; then
-			break
-		fi
-	done <<< "$prstat_output"
+		# Invert idle to get percent used
+		perc_used[$i]=$(( 100 - idl ))
+		(( i++ ))
+	done <<< "$output"
 
-	# Print the memory and CPU usage
-	printf "${green}Zone: ${reset}${cyan}%s ${magenta}(${yellow}%s${magenta})\n" \
-		"$zoneid" "$zone"
-
-	printf "${green}Mem:  ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%s\n" \
-		"$(print_bars "$memory")" "$memory"
-
-	printf "${green}CPU:  ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%s\n" \
-		"$(print_bars "$cpu")"    "$cpu"
-
-	# Print the bottom line of prstat
-	echo -n "$green"
-	tail -1 <<< "$prstat_output"
+	# Print the output
+	for (( i=0 ; i < ${#perc_used[@]} ; i++ )) do
+		perc_used_core=${perc_used[$i]}
+		printf "${green}CPU %2d: ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%3d%%\n" \
+			"$i" "$(print_bars "$perc_used_core")" "$perc_used_core"
+	done
 
 	# Reset all colors
 	echo -n "$reset"
 }
 
 # Get command line options
-while getopts "b:c:nz:h" options; do
+while getopts "b:c:nh" options; do
 	case "$options" in
 		b) bar_character=$OPTARG;;
 		c) columns=$OPTARG;;
 		n) color=false;;
-		z) report_zoneid=$OPTARG;;
 		h) usage >&2; exit 0;;
 		*) usage >&2; exit 1;;
 	esac
 done
 shift $(($OPTIND-1))
-
-# Check if zone exists
-if ! zone_exists "$report_zoneid"; then
-	echo "Zone ID ($report_zoneid) doesn't exist!" >&2
-	exit 1
-fi
 
 # Check if colors should be loaded
 "$color" && load_colors
