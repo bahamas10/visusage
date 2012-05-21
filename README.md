@@ -3,14 +3,14 @@ Visual Usage
 A set of tools to get a visual representation of system utilization
 on an Illumos based operating system.
 
-These tools are not meant to replace system tools like mpstat(1), prstat(1),
+These tools are not meant to replace system tools like mpstat(1M), prstat(1M),
 etc.  Instead, these tools should make it easier to identify problems from a
 thousand foot view, such as running these tools and looking for large spikes
 of red output.
 
 viszones
 ========
-View CPU and memory utilization from prstat(1) per zone
+View CPU and memory utilization from prstat(1M) per zone
 
     ~$ viszones -c 30 -b '#' -z 0 1 5
 
@@ -35,7 +35,7 @@ Example
 
 viscores
 ========
-View CPU utilization per core from mpstat(1)
+View CPU utilization per core from mpstat(1M)
 
     ~$ viscores 1
 
