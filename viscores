@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 #
 # Print CPU utilization per core in a nice
-# visual form from mpstat(1)
+# visual form from mpstat(1M)
 #
 # Author: Dave Eddy <dave@daveeddy.com>
 # Date: 4/17/12
 
-# Default number of columns to display
-columns=80
-# The character to use in the bar graphs
-bar_character='|'
-# Color output or not
-color=true
+# Source the lib
+. lib.bash || exit 1
 
 #
 # Display usage
@@ -21,7 +17,7 @@ usage() {
 	Usage: ${0##*/} [ options ] [ <interval> [ <count> ] ]
 
 	Print CPU utilization per core in a nice
-	visual form from mpstat(1)
+	visual form from mpstat(1M)
 
 	Example Usage: ${0##*/} -c 30 -b '#' 1 5
 	- Report for 5 times at 1 second intervals,
@@ -34,39 +30,6 @@ usage() {
 	-h           : Print this help message
 
 	EOF
-}
-
-#
-# Load colors into variables
-#
-load_colors() {
-	black=$(tput setaf 0)
-	red=$(tput setaf 1)
-	green=$(tput setaf 2)
-	yellow=$(tput setaf 3)
-	blue=$(tput setaf 4)
-	magenta=$(tput setaf 5)
-	cyan=$(tput setaf 6)
-	white=$(tput setaf 7)
-	bold=$(tput bold)
-	reset=$(tput sgr0)
-}
-
-
-# Display bars for a given percent
-#
-# $1 = percentage
-#
-print_bars() {
-	local perc=${1//%/}
-	local decimal=$(bc <<< "scale=2; $perc / 100.0")
-	local num_bars_dec=$(bc <<< "$columns * $decimal")
-	local num_bars=${num_bars_dec%%.*}
-
-	for ((i=1; i<=columns; i++)); do
-		((i <= num_bars)) && echo -n "$bar_character" || echo -n " "
-	done
-	echo
 }
 
 #
@@ -119,28 +82,5 @@ shift $(($OPTIND-1))
 # Check if colors should be loaded
 "$color" && load_colors
 
-# Check if an interval was given
-if [[ -n "$1" ]]; then
-	interval=$1
-	# Check if a count was given
-	if [[ -n "$2" ]]; then
-		i=0
-		count=$2
-	fi
-
-	# Clear the screen and run the loop
-	while true; do
-		output=$(main; date)
-		clear
-		echo "$output"
-		# If counting, inecrement the counter and exit if over $count
-		if [[ -n "$count" ]]; then
-			((i++))
-			if ((i >= count)); then
-				exit 0
-			fi
-		fi
-		sleep "$interval"
-	done
-fi
-main
+# Start it!
+start "$@"
