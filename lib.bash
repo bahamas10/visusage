@@ -9,6 +9,8 @@ columns=80
 bar_character='|'
 # Color output or not
 color=true
+# Core Count
+corecount=$(( $(mpstat | wc -l) - 1 ))
 
 #
 # Load colors into variables

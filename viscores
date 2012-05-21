@@ -33,15 +33,26 @@ usage() {
 }
 
 #
+# Generate the output
+#
+gen_output() {
+	# Print the output/flush
+	for (( i=0 ; i < ${#perc_used[@]} ; i++ )) do
+		perc_used_core=${perc_used[$i]}
+		printf "${green}CPU %2d: ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%3d%%\n" \
+			"$i" "$(print_bars "$perc_used_core")" "$perc_used_core"
+	done
+	# Reset
+	echo -n "$reset"
+}
+
+#
 # Main function
 #
 # Generate output and print it
 #
 main() {
-	# Grab the out of prstat
-	output=$(mpstat)
-
-	# Loop the output of prstat and extract the meaninful fields
+	# Loop the output of mpstat(1M) and extract the meaninful fields
 	first=true
 	i=0
 	while read CPU minf mjf xcal intr ithr csw icsw migr smtx srw syscl usr sys wt idl; do
@@ -54,17 +65,17 @@ main() {
 		# Invert idle to get percent used
 		perc_used[$i]=$(( 100 - idl ))
 		(( i++ ))
-	done <<< "$output"
 
-	# Print the output
-	for (( i=0 ; i < ${#perc_used[@]} ; i++ )) do
-		perc_used_core=${perc_used[$i]}
-		printf "${green}CPU %2d: ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%3d%%\n" \
-			"$i" "$(print_bars "$perc_used_core")" "$perc_used_core"
-	done
+		if (( i >= corecount )); then
+			output=$(gen_output; date;)
+			[[ -n "$1" ]] && clear
 
-	# Reset all colors
-	echo -n "$reset"
+			echo "$output"
+
+			first=true
+			i=0
+		fi
+	done < <(mpstat "$@")
 }
 
 # Get command line options
@@ -82,5 +93,5 @@ shift $(($OPTIND-1))
 # Check if colors should be loaded
 "$color" && load_colors
 
-# Start it!
-start "$@"
+# Start it
+main "$@"
