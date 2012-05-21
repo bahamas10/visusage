@@ -38,9 +38,13 @@ usage() {
 gen_output() {
 	# Print the output/flush
 	for (( i=0 ; i < ${#perc_used[@]} ; i++ )) do
+		perc_used_usr=${perc_usr[$i]}
+		perc_used_sys=${perc_sys[$i]}
 		perc_used_core=${perc_used[$i]}
-		printf "${green}CPU %2d: ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%3d%%\n" \
-			"$i" "$(print_bars "$perc_used_core")" "$perc_used_core"
+		bars=$(echo -n "$green"; print_bars "$perc_used_usr"; echo -n "$red"; print_bars "$perc_used_sys")
+		bars=$(printf "%-*s" "$columns" "$bars")
+		printf "${green}CPU %2d: ${bold}${blue}[${reset}%s${bold}${blue}]${reset} ${cyan}%3d%%\n" \
+			"$i" "$bars" "$perc_used_core"
 	done
 	# Reset
 	echo -n "$reset"
@@ -63,6 +67,8 @@ main() {
 		fi
 
 		# Invert idle to get percent used
+		perc_usr[$i]=$usr
+		perc_sys[$i]=$sys
 		perc_used[$i]=$(( 100 - idl ))
 		(( i++ ))
 

@@ -71,11 +71,11 @@ main() {
 	printf "${green}Zone: ${reset}${cyan}%s ${magenta}(${yellow}%s${magenta})\n" \
 		"$zoneid" "$zone"
 
-	printf "${green}Mem:  ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%s\n" \
-		"$(print_bars "$memory")" "$memory"
+	printf "${green}Mem:  ${bold}${blue}[${reset}${red}%-*s${bold}${blue}]${reset} ${cyan}%s\n" \
+		"$columns" "$(print_bars "$memory")" "$memory"
 
-	printf "${green}CPU:  ${bold}${blue}[${reset}${red}%s${bold}${blue}]${reset} ${cyan}%s\n" \
-		"$(print_bars "$cpu")"    "$cpu"
+	printf "${green}CPU:  ${bold}${blue}[${reset}${red}%-*s${bold}${blue}]${reset} ${cyan}%s\n" \
+		"$columns" "$(print_bars "$cpu")"    "$cpu"
 
 	# Print the bottom line of prstat
 	echo -n "$green"

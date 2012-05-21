@@ -53,9 +53,8 @@ print_bars() {
 	local num_bars=${num_bars_dec%%.*}
 
 	for ((i=1; i<=columns; i++)); do
-		((i <= num_bars)) && echo -n "$bar_character" || echo -n " "
+		((i <= num_bars)) && echo -n "$bar_character" || break
 	done
-	echo
 }
 
 # Start the main loop of a program
