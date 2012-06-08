@@ -44,7 +44,7 @@ gen_output() {
 		bars=$(echo -n "$green"; print_bars "$perc_used_usr"; echo -n "$red"; print_bars "$perc_used_sys")
 		"$color" && col=$(( columns + ${#green} + ${#red} )) || col=$columns
 		printf "${green}CPU %2d: ${bold}${blue}[${reset}%-*s${bold}${blue}]${reset} ${cyan}%3d%%\n" \
-			"$i" "$cols" "$bars" "$perc_used_core"
+			"$i" "$col" "$bars" "$perc_used_core"
 	done
 	# Reset
 	echo -n "$reset"
