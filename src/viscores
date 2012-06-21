@@ -7,7 +7,9 @@
 # Date: 4/17/12
 
 # Source the lib
-. lib.bash || exit 1
+if [[ -z "$lib_is_loaded" ]]; then
+	. lib/visusage.bash || exit 1
+fi
 
 #
 # Display usage

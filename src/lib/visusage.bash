@@ -3,6 +3,8 @@
 # Author: Dave Eddy <dave@daveeddy.com>
 # Date: 5/22/12
 
+# Set a variable to test if the lib is loaded
+lib_is_loaded=true
 # Default number of columns to display
 columns=80
 # The character to use in the bar graphs
@@ -60,6 +62,7 @@ print_bars() {
 # Start the main loop of a program
 #
 # Assumes the function to call is `main`
+#
 start() {
 	# Check if an interval was given
 	if [[ -n "$1" ]]; then
