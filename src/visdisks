@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+#
+# Print Disk utilization per disk in a nice
+# visual form from iostat(1M)
+#
+# Author: Dave Eddy <dave@daveeddy.com>
+# Date: 7/25/12
+
+# Source the lib
+if [[ -z "$lib_is_loaded" ]]; then
+	. lib/visusage.bash || exit 1
+fi
+
+diskcount=$(( $(iostat -xn 1 1 | wc -l) - 2 ))
+
+#
+# Display usage
+#
+usage() {
+	cat <<-EOF
+	Usage: ${0##*/} [ options ] [ <interval> [ <count> ] ]
+
+	Print Disk utilization per disk in a nice
+	visual form from iostat(1M)
+
+	Example Usage: ${0##*/} -c 30 -b '#' 1 5
+	- Report for 5 times at 1 second intervals,
+	  reserving 30 characters for the bar graph using # as
+	  the graph character
+
+	-b <char>    : Character to use for the bar graph
+	-c <columns> : Number of columns to use for the bar graph
+	-n           : Disable color output
+	-h           : Print this help message
+
+	EOF
+}
+
+#
+# Generate the output
+#
+gen_output() {
+	# Print the output/flush
+	local perc=
+	local bars=
+	local device_name=
+	local i=
+	for (( i = 0 ; i < ${#perc_busy[@]} ; i++ )) do
+		device_name=${device_names[$i]}
+		perc=${perc_busy[$i]}
+		bars=$(print_bars "$perc")
+		printf "${green}%10s: ${bold}${blue}[${reset}${red}%-*s${bold}${blue}]${reset}${cyan}%3d%%\n" \
+			"$device_name" "$columns" "$bars" "$perc"
+	done
+	# Reset
+	echo -n "$reset"
+}
+
+#
+# Main function
+#
+# Generate output and print it
+#
+main() {
+	# Loop the output of iostat(1M) and extract the meaninful fields
+	first=0
+	i=0
+	while read rs ws krs kws wait actv wsvc_t asvc_t w b device; do
+		# Ignore the headers
+		if ((first++ < 2)); then
+			continue
+		fi
+
+		device_names[$i]=$device
+		perc_busy[$i]=$b
+		(( i++ ))
+
+		if (( i >= diskcount )); then
+			output=$(gen_output; date;)
+
+			[[ -n "$1" ]] && clear
+
+			echo "$output"
+
+			first=0
+			i=0
+		fi
+	done < <(iostat -xn "$@")
+}
+
+# Get command line options
+while getopts "b:c:nh" options; do
+	case "$options" in
+		b) bar_character=$OPTARG;;
+		c) columns=$OPTARG;;
+		n) color=false;;
+		h) usage >&2; exit 0;;
+		*) usage >&2; exit 1;;
+	esac
+done
+shift "$((OPTIND - 1))"
+
+# Check if colors should be loaded
+"$color" && load_colors
+
+# Start it
+main "$@"

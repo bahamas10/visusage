@@ -53,6 +53,7 @@ print_bars() {
 	local decimal=$(bc <<< "scale=2; $perc / 100.0")
 	local num_bars_dec=$(bc <<< "$columns * $decimal")
 	local num_bars=${num_bars_dec%%.*}
+	local i=
 
 	for ((i=1; i<=columns; i++)); do
 		((i <= num_bars)) && echo -n "$bar_character" || break

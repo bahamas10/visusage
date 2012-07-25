@@ -78,12 +78,35 @@ Report CPU utilization per core, updating every second.
     CPU  2: [|||                                                                             ]   4%
     CPU  3: [||                                                                              ]   3%
 
+visdisks
+--------
+
+View Disk utilization per disk from iostat(1M)
+
+    ~$ visdisks 1
+
+Report disk utilization, updating every second
+
+### Options
+
+-b <char>    : Character to use for the bar graph
+-c <columns> : Number of columns to use for the bar graph
+-n           : Disable color output
+-h           : Print this help message
+
+### Example
+
+      ramdisk1: [                                                                                ]  0%
+           sd0: [                                                                                ]  0%
+           sd1: [||||||||||||||||||||||||||||||                                                  ] 38%
+    Wed Jul 25 09:21:27 UTC 2012
+
+
 To Do
 -----
 
 * Switch to an ncurses view, or something similar to avoid the hacky
 clearing of the terminal window to update the view
-* Learn make(1).  The Makefile isn't as awesome as it can be
 
 Copying
 -------
