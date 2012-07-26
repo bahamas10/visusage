@@ -1,27 +1,22 @@
 PREFIX?=/opt/local
+files=viszones viscores visdisks
 
 all:
 	cat src/lib/visusage.bash src/viszones > viszones
-	chmod +x viszones
 	cat src/lib/visusage.bash src/viscores > viscores
-	chmod +x viscores
 	cat src/lib/visusage.bash src/visdisks > visdisks
-	chmod +x visdisks
+	chmod +x $(files)
 
 clean:
-	rm -f viszones
-	rm -f viscores
-	rm -f visdisks
+	rm -f $(files)
 
 install:
-	mkdir -p $(PREFIX)/bin
-	cp -f viszones $(PREFIX)/bin/viszones
-	cp -f viscores $(PREFIX)/bin/viscores
-	cp -f visdisks $(PREFIX)/bin/visdisks
+	mkdir -p "$(PREFIX)/bin"
+	cp -f $(files) "$(PREFIX)/bin/"
 
 uninstall:
-	rm -f $(PREFIX)/bin/viszones
-	rm -f $(PREFIX)/bin/viscores
-	rm -f $(PREFIX)/bin/visdisks
+	rm -f "$(PREFIX)/bin/viszones"
+	rm -f "$(PREFIX)/bin/viscores"
+	rm -f "$(PREFIX)/bin/visdisks"
 
 .PHONY: all clean install uninstall

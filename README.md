@@ -23,7 +23,7 @@ the root of the repository.  You can then install the scripts globally to
 
     make install
 
-Uninstallation:
+To uninstall use this:
 
     make uninstall
 
