@@ -12,7 +12,7 @@ bar_character='|'
 # Color output or not
 color=true
 # Core Count
-corecount=$(( $(mpstat | wc -l) - 1 ))
+corecount=$(psrinfo | wc -l)
 
 #
 # Load colors into variables
