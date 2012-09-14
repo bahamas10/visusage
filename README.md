@@ -89,10 +89,10 @@ Report disk utilization, updating every second
 
 ### Options
 
--b <char>    : Character to use for the bar graph
--c <columns> : Number of columns to use for the bar graph
--n           : Disable color output
--h           : Print this help message
+    -b <char>    : Character to use for the bar graph
+    -c <columns> : Number of columns to use for the bar graph
+    -n           : Disable color output
+    -h           : Print this help message
 
 ### Example
 
