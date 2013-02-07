@@ -61,6 +61,7 @@ gen_output() {
 #
 # Generate output and print it
 #
+doclear=true
 main() {
 	# Loop the output of iostat(1M) and extract the meaninful fields
 	first=0
@@ -73,12 +74,14 @@ main() {
 
 		device_names[$i]=$device
 		perc_busy[$i]=$b
-		(( i++ ))
 
-		if (( i >= diskcount )); then
+		if (( ++i >= diskcount )); then
 			output=$(gen_output; date;)
 
-			[[ -n "$1" ]] && clear
+			if [[ -n "$1" ]]; then
+				$doclear && clear || clearup
+				doclear=false
+			fi
 
 			echo "$output"
 

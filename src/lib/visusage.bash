@@ -60,6 +60,11 @@ print_bars() {
 	done
 }
 
+# return cursor to the top
+clearup() {
+	echo -ne '\033[0f'
+}
+
 # Start the main loop of a program
 #
 # Assumes the function to call is `main`
@@ -75,14 +80,14 @@ start() {
 		fi
 
 		# Clear the screen and run the loop
+		clear
 		while true; do
 			output=$(main; date)
-			clear
+			clearup
 			echo "$output"
 			# If counting, inecrement the counter and exit if over $count
 			if [[ -n "$count" ]]; then
-				((i++))
-				if ((i >= count)); then
+				if ((++i >= count)); then
 					exit 0
 				fi
 			fi

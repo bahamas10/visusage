@@ -57,6 +57,7 @@ gen_output() {
 #
 # Generate output and print it
 #
+doclear=true
 main() {
 	# Loop the output of mpstat(1M) and extract the meaninful fields
 	first=true
@@ -72,11 +73,13 @@ main() {
 		perc_usr[$i]=$usr
 		perc_sys[$i]=$sys
 		perc_used[$i]=$(( 100 - idl ))
-		(( i++ ))
 
-		if (( i >= corecount )); then
+		if (( ++i >= corecount )); then
 			output=$(gen_output; date;)
-			[[ -n "$1" ]] && clear
+			if [[ -n "$1" ]]; then
+				$doclear && clear || clearup
+				doclear=false
+			fi
 
 			echo "$output"
 
