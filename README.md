@@ -101,13 +101,6 @@ Report disk utilization, updating every second
            sd1: [||||||||||||||||||||||||||||||                                                  ] 38%
     Wed Jul 25 09:21:27 UTC 2012
 
-
-To Do
------
-
-* Switch to an ncurses view, or something similar to avoid the hacky
-clearing of the terminal window to update the view
-
 Copying
 -------
 
