@@ -101,6 +101,20 @@ Report disk utilization, updating every second
            sd1: [||||||||||||||||||||||||||||||                                                  ] 38%
     Wed Jul 25 09:21:27 UTC 2012
 
+visnet
+------
+
+View network utilization statistics per interface with dladm(1M)
+
+    ~$ visnet 1
+
+### Example
+
+    link:                     Rx                     Tx                  total
+    net0:                 966b/s                 888b/s                  1kb/s
+    net1:                 124b/s                   0b/s                 124b/s
+    net2:                 120b/s                   0b/s                 120b/s
+
 Copying
 -------
 

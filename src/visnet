@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+#
+# visualize network usage on an illumos operating system
+#
+# Author: Dave Eddy <dave@daveeddy.com>
+# Date: 3/14/14
+
+# Load the lib
+if [[ -z $lib_is_loaded ]]; then
+	. lib/visusage.bash || exit 1
+fi
+
+#
+# Display usage
+#
+usage() {
+	cat <<-EOF
+	Usage: ${0##*/} [ options ] [ <interval> [ <count> ] ]
+
+	Print network utilization information using dladm(1M) on
+	an Illumos based Operating System
+
+	Example Usage: ${0##*/} 1
+
+	-n           : Disable color output
+	-h           : Print this help message
+
+	EOF
+}
+
+units() {
+	local num=$1
+	if ((num / 1024 / 1024 / 1024 / 1024)); then
+		echo "${bold}${red}$((num / 1024 / 1024 / 1024 / 1024))tb/s${reset}"
+	elif ((num / 1024 / 1024 / 1024)); then
+		echo "${red}$((num / 1024 / 1024 / 1024))gb/s${reset}"
+	elif ((num / 1024 / 1024)); then
+		echo "${yellow}$((num / 1024 / 1024))mb/s${reset}"
+	elif ((num / 1024)); then
+		echo "${magenta}$((num / 1024))kb/s${reset}"
+	else
+		echo "${green}${num}b/s${reset}"
+	fi
+}
+
+#
+# Main function
+#
+# Generate output and print it
+#
+cache_obytes=()
+cache_rbytes=()
+main() {
+	# Grab the out of dladm
+	local output=$(dladm show-link -spo link,obytes,rbytes)
+
+	# Loop the output and extract the meaninful fields
+	s=()
+	s=("${s[@]}" "$(printf "${green}%5s: %30s %30s %30s${reset}\n" 'link' "${cyan}Rx${reset}" "${cyan}Tx${reset}" "${cyan}total${reset}")")
+	i=0
+	while IFS=: read link _obytes _rbytes; do
+		obytes=$((_obytes - ${cache_obytes[$i]:-0}))
+		rbytes=$((_rbytes - ${cache_rbytes[$i]:-0}))
+		total=$((obytes + rbytes))
+
+		s=("${s[@]}" "$(printf "${green}%5s: %30s %30s %30s${reset}" "$link" "$(units "$rbytes")" "$(units "$obytes")" "$(units "$total")")")
+
+		cache_obytes[$i]=$_obytes
+		cache_rbytes[$i]=$_rbytes
+
+		((i++))
+	done <<< "$output"
+
+	# Reset all colors
+	printf '%s\n' "${s[@]}"
+}
+
+# Get command line options
+while getopts 'nh' option; do
+	case "$option" in
+		n) color=false;;
+		h) usage >&2; exit 0;;
+		*) usage >&2; exit 1;;
+	esac
+done
+shift $((OPTIND-1))
+
+# Check if colors should be loaded
+$color && load_colors
+
+if [[ -n $1 ]]; then
+	interval=$1
+	# Check if a count was given
+	if [[ -n $2 ]]; then
+		i=0
+		count=$2
+	fi
+
+	# Clear the screen and run the loop
+	clear
+	while true; do
+		clearup
+		main
+		echo "$output"
+		# If counting, inecrement the counter and exit if over $count
+		if [[ -n $count ]]; then
+			if ((++i >= count)); then
+				exit 0
+			fi
+		fi
+		sleep "$interval"
+	done
+fi
+main
