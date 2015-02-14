@@ -76,7 +76,7 @@ main() {
 		perc_busy[$i]=$b
 
 		if (( ++i >= diskcount )); then
-			output=$(gen_output; date;)
+			output=$(gen_output; _date;)
 
 			if [[ -n "$1" ]]; then
 				$doclear && clear || clearup

@@ -2,17 +2,30 @@
 #
 # Author: Dave Eddy <dave@daveeddy.com>
 # Date: 5/22/12
+# License: MIT
 
 # Set a variable to test if the lib is loaded
 lib_is_loaded=true
+
 # Default number of columns to display
 columns=80
+
 # The character to use in the bar graphs
 bar_character='|'
+
 # Color output or not
 color=true
+
 # Core Count
 corecount=$(psrinfo | wc -l)
+
+# check for bash >= 4 date
+dateformat='%Y-%m-%dT%H:%M:%S%z'
+if printf '%()T' -1 &>/dev/null; then
+	_date() { printf "%($dateformat)T" -1; }
+else
+	_date() { date "+$dateformat"; }
+fi
 
 #
 # Load colors into variables
@@ -37,7 +50,7 @@ load_colors() {
 #
 zone_exists() {
 	while IFS=: read zoneid zonename state zonepath uuid brand ip_type; do
-		if [[ "$1" == "$zoneid" ]]; then
+		if [[ $1 == $zoneid ]]; then
 			return 0
 		fi
 	done < <(zoneadm list -p)
@@ -50,14 +63,13 @@ zone_exists() {
 #
 print_bars() {
 	local perc=${1//%/}
-	local decimal=$(bc <<< "scale=2; $perc / 100.0")
-	local num_bars_dec=$(bc <<< "$columns * $decimal")
-	local num_bars=${num_bars_dec%%.*}
-	local i=
+	local num_bars=$((perc * columns / 100))
 
-	for ((i=1; i<=columns; i++)); do
-		((i <= num_bars)) && echo -n "$bar_character" || break
+	local s=
+	for ((i = 0; i < num_bars; i++)); do
+		s=$s$bar_character
 	done
+	echo -n "$s"
 }
 
 # return cursor to the top
@@ -82,7 +94,7 @@ start() {
 		# Clear the screen and run the loop
 		clear
 		while true; do
-			output=$(main; date)
+			output=$(main; _date)
 			clearup
 			echo "$output"
 			# If counting, inecrement the counter and exit if over $count

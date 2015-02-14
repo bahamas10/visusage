@@ -75,7 +75,7 @@ main() {
 		perc_used[$i]=$(( 100 - idl ))
 
 		if (( ++i >= corecount )); then
-			output=$(gen_output; date;)
+			output=$(gen_output; _date;)
 			if [[ -n "$1" ]]; then
 				$doclear && clear || clearup
 				doclear=false
