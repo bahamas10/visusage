@@ -1,12 +1,20 @@
 PREFIX?=/opt/local
 files=viszones viscores visdisks visnet
 
-all:
-	cat src/lib/visusage.bash src/viszones > viszones
-	cat src/lib/visusage.bash src/viscores > viscores
-	cat src/lib/visusage.bash src/visdisks > visdisks
-	cat src/lib/visusage.bash src/visnet > visnet
-	chmod +x $(files)
+all: viszones viscores visdisks visnet
+
+viszones: src/lib/visusage.bash src/viszones
+	cat $^ > $@
+	chmod +x $@
+viscores: src/lib/visusage.bash src/viscores
+	cat $^ > $@
+	chmod +x $@
+visdisks: src/lib/visusage.bash src/visdisks
+	cat $^ > $@
+	chmod +x $@
+visnet: src/lib/visusage.bash src/visnet
+	cat $^ > $@
+	chmod +x $@
 
 clean:
 	rm -f $(files)
