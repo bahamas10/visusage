@@ -63,6 +63,7 @@ zone_exists() {
 #
 print_bars() {
 	local perc=${1//%/}
+	perc=${perc%%.*}
 	local num_bars=$((perc * columns / 100))
 
 	local s=
